@@ -1,37 +1,39 @@
 import Link from 'next/link'
-import { Home, UserCircle } from 'lucide-react'
+import { UserCircle, Sparkles } from 'lucide-react' 
 
 export function Header() {
   return (
-    <header className="border-b border-slate-200 bg-white sticky top-0 z-50">
-      <div className="container-custom h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 text-brand-600 hover:opacity-80 transition-opacity">
-          <div className="bg-brand-500 p-1.5 rounded-lg">
-            <Home className="text-white w-6 h-6" />
-          </div>
-          <span className="text-xl font-bold tracking-tight text-brand-900">IMOVIT</span>
-        </Link>
+    <header className="border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          
+          {/* LOGO + TAG DE IA */}
+          <Link href="/" className="flex items-center gap-1 group">
+            
+            {/* 1. NOME FORTE (Usa font-black para peso máximo) */}
+            <span className="text-2xl font-black tracking-tighter text-slate-900 group-hover:opacity-80 transition-opacity">
+              IMOVIT
+            </span>
 
-        {/* Menu Desktop */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link href="/" className="text-slate-600 hover:text-brand-600 font-medium text-sm">
-            Comprar
-          </Link>
-          <Link href="/" className="text-slate-600 hover:text-brand-600 font-medium text-sm">
-            Alugar
-          </Link>
-          <Link href="#" className="text-slate-600 hover:text-brand-600 font-medium text-sm">
-            Anunciar
-          </Link>
-        </nav>
+            {/* 2. TAG "POWERED AI" (O ícone que representa a IA) */}
+            <div className="flex items-center gap-1 ml-1 px-2 py-0.5 rounded-full bg-slate-900 text-white border border-slate-700 shadow-sm transform group-hover:scale-105 transition-all">
+               <Sparkles size={10} className="text-brand-400" fill="currentColor" />
+               <span className="text-[9px] font-bold tracking-widest uppercase text-slate-100">
+                 AI
+               </span>
+            </div>
 
-        {/* Botão Entrar (Futuro Login) */}
-        <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 text-slate-700 hover:text-brand-600 font-medium text-sm px-4 py-2 rounded-full border border-slate-200 hover:border-brand-200 transition-colors">
-            <UserCircle className="w-5 h-5" />
-            <span className="hidden sm:inline">Entrar</span>
-          </button>
+          </Link>
+
+          {/* LADO DIREITO: ÁREA DO PARCEIRO */}
+          <Link 
+            href="/platform/admin" 
+            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500 hover:text-brand-600 transition-colors bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-full"
+          >
+            <UserCircle size={16} />
+            <span className="hidden sm:inline">Área do Parceiro</span>
+          </Link>
+
         </div>
       </div>
     </header>
