@@ -52,12 +52,19 @@ export default async function Home() {
           </div>
 
           {properties.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {properties.map((property: any) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
-          ) : (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {properties.map((property: any) => (
+                  <PropertyCard 
+                    key={property.id} 
+                    property={{
+                      ...property,
+                      // Garante que 'images' seja sempre um array para o Slider não quebrar
+                      images: property.images || [] 
+                    }} 
+                  />
+                ))}
+              </div>
+            ) : (
             <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
               <p className="text-slate-500">Nenhum imóvel encontrado no momento.</p>
             </div>
