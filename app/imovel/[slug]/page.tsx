@@ -1,7 +1,7 @@
 import { PropertyService } from '@/lib/services'
 import { Header } from '@/components/header'
 import { ProposalForm } from '@/components/proposal-form'
-// Importação única e correta dos ícones
+import { Metadata } from 'next' // Importado para SEO
 import { 
   MapPin, 
   Bed, 
@@ -18,12 +18,31 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
 interface PageProps {
-  params: Promise<{ id: string }>
+  // Alterado de 'id' para 'slug' conforme a nova estrutura de pastas
+  params: Promise<{ slug: string }>
+}
+
+// FUNÇÃO DE SEO: Gera o título e descrição dinâmicos para o Google
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  const property = await PropertyService.getBySlugAndId(slug)
+
+  if (!property) return { title: 'Imóvel não encontrado | Imovit AI' }
+
+  return {
+    title: `${property.title} | Imovit AI`,
+    description: property.description.substring(0, 160),
+    openGraph: {
+      images: property.images?.[0] ? [property.images[0]] : []
+    }
+  }
 }
 
 export default async function PropertyDetailsPage({ params }: PageProps) {
-  const { id } = await params;
-  const property = await PropertyService.getById(id)
+  const { slug } = await params;
+  
+  // Agora utiliza o método híbrido para extrair o ID do final da URL
+  const property = await PropertyService.getBySlugAndId(slug)
 
   if (!property) {
     notFound()
@@ -36,14 +55,12 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
   const isVenda = property.intent === 'venda'
   const isTerreno = property.type === 'terreno' || property.type === 'lote'
   
-  // Garante que o valor principal nunca seja undefined para o formatador
+  // Lógica de fallback para garantir que o preço apareça mesmo se o campo específico estiver zerado
   const mainPriceValue: number = (isVenda ? (property.sale_price || property.price) : (property.rent_price || property.price)) || 0;
   
-  // Mensagem WhatsApp Dinâmica: Inclui o valor para que o anunciante identifique o anúncio
   const messageText = `Olá ${property.owner_name || 'anunciante'}, tenho interesse no imóvel "${property.title}" anunciado por ${formatCurrency(mainPriceValue)}. Aguardo contato.`
   const whatsappUrl = `https://wa.me/55${property.owner_phone?.replace(/\D/g, '')}?text=${encodeURIComponent(messageText)}`
 
-  // Tratamento de Coordenadas para o Mapa
   const lat = Number(property.latitude) || 0
   const lng = Number(property.longitude) || 0
 
@@ -95,9 +112,9 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
           {/* Características Técnicas */}
           <section className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
             <h2 className="text-2xl font-black text-slate-900 mb-8 border-b border-slate-100 pb-4 font-sans">Especificações</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center md:text-left">
               <div className="space-y-1">
-                <Maximize className="w-6 h-6 text-brand-500" />
+                <Maximize className="w-6 h-6 text-brand-500 mx-auto md:mx-0" />
                 <p className="text-2xl font-black text-slate-800">{property.area} <small className="text-xs font-medium">m²</small></p>
                 <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Área Total</p>
               </div>
@@ -105,17 +122,17 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
               {!isTerreno && (
                 <>
                   <div className="space-y-1">
-                    <Bed className="w-6 h-6 text-brand-500" />
+                    <Bed className="w-6 h-6 text-brand-500 mx-auto md:mx-0" />
                     <p className="text-2xl font-black text-slate-800">{property.bedrooms}</p>
                     <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Quartos / {property.suites || 0} Suítes</p>
                   </div>
                   <div className="space-y-1">
-                    <Bath className="w-6 h-6 text-brand-500" />
+                    <Bath className="w-6 h-6 text-brand-500 mx-auto md:mx-0" />
                     <p className="text-2xl font-black text-slate-800">{property.bathrooms}</p>
                     <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Banheiros</p>
                   </div>
                   <div className="space-y-1">
-                    <Car className="w-6 h-6 text-brand-500" />
+                    <Car className="w-6 h-6 text-brand-500 mx-auto md:mx-0" />
                     <p className="text-2xl font-black text-slate-800">{property.parking}</p>
                     <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest">Vagas</p>
                   </div>
@@ -158,7 +175,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                   <div className="p-5 bg-slate-50 rounded-xl flex justify-between items-center border border-slate-100">
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-black uppercase text-[10px] tracking-widest">Condomínio</span>
-                      <span className="text-sm text-slate-400 font-bold tracking-tight">Custo mensal aproximado</span>
+                      <span className="text-sm text-slate-400 font-bold tracking-tight">Custo mensal</span>
                     </div>
                     <span className="font-black text-slate-800 text-xl">{formatCurrency(property.condo_price)}</span>
                   </div>
@@ -167,7 +184,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                   <div className="p-5 bg-slate-50 rounded-xl flex justify-between items-center border border-slate-100">
                     <div className="flex flex-col">
                       <span className="text-slate-500 font-black uppercase text-[10px] tracking-widest">IPTU</span>
-                      <span className="text-sm text-slate-400 font-bold tracking-tight">Custo anual total</span>
+                      <span className="text-sm text-slate-400 font-bold tracking-tight">Custo anual</span>
                     </div>
                     <span className="font-black text-slate-800 text-xl">{formatCurrency(property.iptu_price)}</span>
                   </div>
@@ -212,7 +229,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                 src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01}%2C${lat-0.01}%2C${lng+0.01}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lng}`}
               ></iframe>
             </div>
-            <p className="mt-4 text-xs text-slate-400 italic">Mapa gerado automaticamente através das coordenadas geográficas.</p>
+            <p className="mt-4 text-xs text-slate-400 italic font-medium">Mapa gerado via coordenadas geográficas.</p>
           </section>
 
         </div>
@@ -224,7 +241,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
             <div className="mb-6">
                <p className="text-4xl font-black text-brand-600">{formatCurrency(mainPriceValue)}</p>
                {property.condo_price > 0 && (
-                 <p className="text-xs text-slate-400 mt-1 font-bold italic">+ {formatCurrency(property.condo_price)} condomínio</p>
+                 <p className="text-xs text-slate-400 mt-1 font-bold italic tracking-tight">+ {formatCurrency(property.condo_price)} condomínio</p>
                )}
             </div>
 
