@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Script from "next/script"; // 1. Importação necessária
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 // CONFIGURAÇÃO DE SEO E METADADOS
 export const metadata: Metadata = {
   title: {
-    template: '%s | Imovit', // As páginas internas ficarão: "Dashboard | Imovit"
+    template: '%s | Imovit',
     default: 'Imovit Admin | Gestão Imobiliária Inteligente',
   },
   description: 'CRM de alta performance com inteligência artificial para corretores e gestão de leads.',
@@ -26,7 +27,6 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  // Configuração para quando compartilhar o link no WhatsApp
   openGraph: {
     title: 'Imovit - Inteligência Imobiliária',
     description: 'Transforme leads em vendas com análise de IA.',
@@ -47,6 +47,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-slate-50`}
       >
+        {/* 2. CONFIGURAÇÃO DO GOOGLE ANALYTICS */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-D21Z0HSWWP"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-D21Z0HSWWP');
+          `}
+        </Script>
+
         {/* O conteúdo principal expande para empurrar o rodapé (flex-grow) */}
         <main className="flex-grow w-full">
           {children}
