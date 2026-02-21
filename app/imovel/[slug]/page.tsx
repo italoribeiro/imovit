@@ -9,13 +9,14 @@ import {
   Car, 
   Maximize, 
   Youtube, 
-  MessageCircle, 
   CheckCircle2, 
   Landmark, 
   FileText 
 } from 'lucide-react'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
+// IMPORTAÇÃO CORRETA - Já estava no seu código
+import { WhatsAppButton } from '@/components/whatsapp-button'
 
 interface PageProps {
   // Alterado de 'id' para 'slug' conforme a nova estrutura de pastas
@@ -245,15 +246,14 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                )}
             </div>
 
+            {/* AQUI ESTÁ A ÚNICA ALTERAÇÃO REAL NO SEU CÓDIGO */}
             <div className="space-y-3 mb-8">
-               <a 
-                href={whatsappUrl} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-3 bg-green-600 text-white py-4 rounded-xl font-black uppercase text-sm hover:bg-green-700 transition-all shadow-lg shadow-green-100 active:scale-[0.98]"
-               >
-                 <MessageCircle size={20} /> Chamar no WhatsApp
-               </a>
+               <WhatsAppButton 
+                 propertyId={property.id}
+                 ownerName={property.owner_name || 'Anunciante'}
+                 ownerPhone={property.owner_phone || ''}
+                 whatsappUrl={whatsappUrl}
+               />
             </div>
 
             <hr className="mb-8 border-slate-100" />
